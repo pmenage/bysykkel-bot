@@ -30,7 +30,7 @@ func main() {
 		if update.Message.Text == "/start" {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				"Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\n You can send the following commands:\n\n /getbikes - get the bikes closest to you\n /get locks - get the locks closest to you\n")
+				"Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\n You can send the following commands:\n\n /getbikes - get the bikes closest to you\n /getlocks - get the locks closest to you\n")
 			msg.ReplyToMessageID = update.Message.MessageID
 			_, err := bot.Send(msg)
 			if err != nil {
@@ -38,7 +38,7 @@ func main() {
 			}
 		}
 
-		if update.Message.Text == "/getbikes" {
+		if update.Message.Text == "/getbikes" || update.Message.Text == "/getlocks" {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
