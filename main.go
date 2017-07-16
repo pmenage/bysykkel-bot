@@ -32,7 +32,24 @@ func main() {
 				update.Message.Chat.ID,
 				"Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\n You can send the following commands:\n\n /getbikes - get the bikes closest to you\n /get locks - get the locks closest to you\n")
 			msg.ReplyToMessageID = update.Message.MessageID
-			bot.Send(msg)
+			_, err := bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		if update.Message.Text == "/getbikes" {
+			msg := tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				"Do you allow the bot to use your current location?")
+			var keyboardButtons []tgbotapi.KeyboardButton
+			locationButton := tgbotapi.NewKeyboardButtonLocation("Yes, I allow BysykkelBot to use my location")
+			keyboardButtons = append(keyboardButtons, locationButton)
+			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(keyboardButtons)
+			_, err := bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
 		}
 
 	}
