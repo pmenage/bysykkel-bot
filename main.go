@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"gopkg.in/telegram-bot-api.v4"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func main() {
@@ -38,15 +38,36 @@ func main() {
 			}
 		}
 
-		if update.Message.Text == "/getbikes" || update.Message.Text == "/getlocks" {
+		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
-			var keyboardButtons []tgbotapi.KeyboardButton
-			locationButton := tgbotapi.NewKeyboardButtonLocation("Yes, I allow BysykkelBot to use my location")
-			keyboardButtons = append(keyboardButtons, locationButton)
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(keyboardButtons)
+			markup := tgbotapi.ReplyKeyboardMarkup{
+				Keyboard: [][]tgbotapi.KeyboardButton{
+					[]tgbotapi.KeyboardButton{
+						tgbotapi.NewKeyboardButtonLocation("Give location"),
+					},
+					[]tgbotapi.KeyboardButton{
+						tgbotapi.NewKeyboardButton("Cancel"),
+					},
+				},
+				OneTimeKeyboard: true,
+			}
+			msg.ReplyMarkup = markup
 			_, err := bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		if update.Message.Location != nil {
+			msg := tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				update.Message.Text)
+
+			tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+
+			_, err = bot.Send(msg)
 			if err != nil {
 				panic(err)
 			}
