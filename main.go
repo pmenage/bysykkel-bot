@@ -46,8 +46,6 @@ func main() {
 		}
 
 		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
-			bysykkel.GetStations(config.BysykkelKey)
-			bysykkel.GetStationsAvailability(config.BysykkelKey)
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
@@ -74,7 +72,11 @@ func main() {
 				update.Message.Chat.ID,
 				update.Message.Text)
 
-			tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			stations := bysykkel.GetStations(config.BysykkelKey)
+			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
+
+			bysykkel.GetNearBikes(location.Latitude, location.Longitude, stations, availability)
 
 			_, err = bot.Send(msg)
 			if err != nil {

@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-type stationsConfig struct {
+// StationsConfig has the configuration of the stations
+type StationsConfig struct {
 	Stations []stationConfig `json:"stations"`
 }
 
@@ -27,7 +28,7 @@ type coordinates struct {
 }
 
 // GetStations gets the stations near you
-func GetStations(key string) {
+func GetStations(key string) StationsConfig {
 
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
@@ -48,7 +49,7 @@ func GetStations(key string) {
 		panic(err)
 	}
 
-	var c stationsConfig
+	var c StationsConfig
 	err = json.Unmarshal(body, &c)
 	if err != nil {
 		panic(err)
@@ -57,5 +58,7 @@ func GetStations(key string) {
 	for _, station := range c.Stations {
 		log.Printf("Station number %v is called %v\n", station.ID, station.Title)
 	}
+
+	return c
 
 }
