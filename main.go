@@ -20,8 +20,6 @@ func main() {
 	bot.Debug = true
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
-	bysykkel.GetStations(config.BysykkelKey)
-	bysykkel.GetStationsAvailability(config.BysykkelKey)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -48,6 +46,8 @@ func main() {
 		}
 
 		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
+			bysykkel.GetStations(config.BysykkelKey)
+			bysykkel.GetStationsAvailability(config.BysykkelKey)
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
