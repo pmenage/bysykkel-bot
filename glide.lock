@@ -1,0 +1,14 @@
+hash: 55bb43982731024210626cf84bd850e484ba2f5a7459e9771eccad94f86640bf
+updated: 2017-07-21T23:49:06.922134653+02:00
+imports:
+- name: github.com/ghodss/yaml
+  version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
+- name: github.com/go-telegram-bot-api/telegram-bot-api
+  version: ebe7b8254e1592d3701010dc4f927a87b3559397
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/technoweenie/multipartstreamer
+  version: a90a01d73ae432e2611d178c18367fbaa13e0154
+- name: gopkg.in/yaml.v2
+  version: 25c4ec802a7d637f88d584ab26798e94ad14c13b
+testImports: []
