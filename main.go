@@ -81,12 +81,20 @@ func main() {
 				update.Message.Chat.ID,
 				"Thank you!")
 
+			_, err = bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+
 			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
 			stations := bysykkel.GetStations(config.BysykkelKey)
 			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
 
-			bysykkel.GetNearBikes(location.Latitude, location.Longitude, stations, availability)
+			msgText := bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
 
+			msg = tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				msgText)
 			_, err = bot.Send(msg)
 			if err != nil {
 				panic(err)
