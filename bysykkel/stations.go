@@ -3,7 +3,6 @@ package bysykkel
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -53,10 +52,6 @@ func GetStations(key string) StationsConfig {
 	err = json.Unmarshal(body, &c)
 	if err != nil {
 		panic(err)
-	}
-
-	for _, station := range c.Stations {
-		log.Printf("Station number %v is called %v\n", station.ID, station.Title)
 	}
 
 	return c
