@@ -79,7 +79,7 @@ func main() {
 		if update.Message.Location != nil {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				"Thank you!")
+				"Thank you!\n\n Here are the bikes and locks closest to you:")
 
 			_, err = bot.Send(msg)
 			if err != nil {
