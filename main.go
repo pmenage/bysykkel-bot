@@ -24,7 +24,12 @@ func main() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	var history string
+	type lastMessage struct {
+		ChatID  int64
+		Message string
+	}
+
+	var lastMessages []lastMessage
 
 	updates, _ := bot.GetUpdatesChan(u)
 
@@ -47,7 +52,11 @@ func main() {
 		}
 
 		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
-			history = update.Message.Text
+			lastMsg := lastMessage{
+				ChatID:  update.Message.Chat.ID,
+				Message: update.Message.Text,
+			}
+			lastMessages = append(lastMessages, lastMsg)
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
@@ -97,12 +106,14 @@ func main() {
 			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
 
 			msgText := ""
-			if history == "/getbikes" {
-				msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
-			} else if history == "/getlocks" {
-				msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
-			} else {
-				msgText = "We messed up, sorry."
+			for _, message := range lastMessages {
+				if message.Message == "/getbikes" && message.ChatID == update.Message.Chat.ID {
+					msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
+				} else if message.Message == "/getlocks" && message.ChatID == update.Message.Chat.ID {
+					msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
+				} else {
+					msgText = "We messed up, sorry."
+				}
 			}
 
 			msg = tgbotapi.NewMessage(
