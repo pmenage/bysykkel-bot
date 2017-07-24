@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-type availabilityConfig struct {
+// AvailabilityConfig gives the bikes and locks at a given stations
+type AvailabilityConfig struct {
 	Stations    []station `json:"stations"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	RefreshRate float64   `json:"refresh_rate"`
@@ -25,7 +26,7 @@ type availability struct {
 }
 
 // GetStationsAvailability gets the availabilities near you
-func GetStationsAvailability(key string) {
+func GetStationsAvailability(key string) AvailabilityConfig {
 
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
@@ -46,7 +47,7 @@ func GetStationsAvailability(key string) {
 		panic(err)
 	}
 
-	var c availabilityConfig
+	var c AvailabilityConfig
 	err = json.Unmarshal(body, &c)
 	if err != nil {
 		panic(err)
@@ -55,5 +56,7 @@ func GetStationsAvailability(key string) {
 	for _, station := range c.Stations {
 		log.Printf("Station number %v has %v bikes and %v locks\n", station.ID, station.Availability.Bikes, station.Availability.Locks)
 	}
+
+	return c
 
 }

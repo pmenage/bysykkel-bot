@@ -38,7 +38,6 @@ func main() {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\n You can send the following commands:\n\n /getbikes - get the bikes closest to you\n /getlocks - get the locks closest to you\n")
-			msg.ReplyToMessageID = update.Message.MessageID
 			_, err := bot.Send(msg)
 			if err != nil {
 				panic(err)
@@ -46,8 +45,6 @@ func main() {
 		}
 
 		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
-			bysykkel.GetStations(config.BysykkelKey)
-			bysykkel.GetStationsAvailability(config.BysykkelKey)
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
@@ -69,13 +66,35 @@ func main() {
 			}
 		}
 
+		if update.Message.Text == "Cancel" {
+			msg := tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				"We need your location to be able to tell you which bikes or locks are close to you. Try again later if you want!")
+			_, err := bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+		}
+
 		if update.Message.Location != nil {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				update.Message.Text)
+				"Thank you!")
 
-			tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			_, err = bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
 
+			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			stations := bysykkel.GetStations(config.BysykkelKey)
+			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
+
+			msgText := bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
+
+			msg = tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				msgText)
 			_, err = bot.Send(msg)
 			if err != nil {
 				panic(err)

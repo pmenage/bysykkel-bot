@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a Telegram chatbot written in go which tells you if there are bicycles or locks in Oslo near you.
+This is a Telegram chatbot written in Go which tells you if there are bicycles or locks in Oslo near you.
 
 ## Run
 
@@ -15,5 +15,5 @@ The chatbot asks you if you wish to share your location, and then uses the Oslo 
 ## Configuration
 
 Add a configuration file in the config folder called config.yaml, with the two following lines:
-telegram_key: YourTelegramBotKey
-bysykkel_key: YourBysykkelAPIKey
+- telegram_key: YourTelegramBotKey
+- bysykkel_key: YourBysykkelAPIKey
