@@ -1,14 +1,32 @@
-hash: 55bb43982731024210626cf84bd850e484ba2f5a7459e9771eccad94f86640bf
-updated: 2017-07-21T23:49:06.922134653+02:00
+hash: 291c43ebc7ba37bc08375ff4776ff0f692eacc18917cd525f45ff94c44fdb06f
+updated: 2017-07-24T20:29:12.68543985+02:00
 imports:
+- name: github.com/erikstmartin/go-testdb
+  version: 8d10e4a1bae52cd8b81ffdec3445890d6dccab3d
 - name: github.com/ghodss/yaml
   version: 0ca9ea5df5451ffdf184b4428c902747c2c11cd7
 - name: github.com/go-telegram-bot-api/telegram-bot-api
   version: ebe7b8254e1592d3701010dc4f927a87b3559397
+- name: github.com/kellydunn/golang-geo
+  version: 6f16b0ccf2a6ebd1a234daacfb6199510fbd0db4
+- name: github.com/kylelemons/go-gypsy
+  version: 08cad365cd28a7fba23bb1e57aa43c5e18ad8bb8
+  subpackages:
+  - yaml
+- name: github.com/lib/pq
+  version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
+  subpackages:
+  - oid
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/technoweenie/multipartstreamer
   version: a90a01d73ae432e2611d178c18367fbaa13e0154
+- name: github.com/ziutek/mymysql
+  version: 1d19cbf98d83564cc561192ae7d7183d795f7ac7
+  subpackages:
+  - godrv
+  - mysql
+  - native
 - name: gopkg.in/yaml.v2
   version: 25c4ec802a7d637f88d584ab26798e94ad14c13b
 testImports: []

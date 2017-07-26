@@ -3,7 +3,6 @@ package bysykkel
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -51,10 +50,6 @@ func GetStationsAvailability(key string) AvailabilityConfig {
 	err = json.Unmarshal(body, &c)
 	if err != nil {
 		panic(err)
-	}
-
-	for _, station := range c.Stations {
-		log.Printf("Station number %v has %v bikes and %v locks\n", station.ID, station.Availability.Bikes, station.Availability.Locks)
 	}
 
 	return c

@@ -24,7 +24,14 @@ func main() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	updates, err := bot.GetUpdatesChan(u)
+	type lastMessage struct {
+		ChatID  int64
+		Message string
+	}
+
+	var lastMessages []lastMessage
+
+	updates, _ := bot.GetUpdatesChan(u)
 
 	for update := range updates {
 
@@ -45,6 +52,11 @@ func main() {
 		}
 
 		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
+			lastMsg := lastMessage{
+				ChatID:  update.Message.Chat.ID,
+				Message: update.Message.Text,
+			}
+			lastMessages = append(lastMessages, lastMsg)
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"Do you allow the bot to use your current location?")
@@ -64,6 +76,7 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+
 		}
 
 		if update.Message.Text == "Cancel" {
@@ -79,18 +92,29 @@ func main() {
 		if update.Message.Location != nil {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				"Thank you!")
+				"Thank you!\n\n Here are the bikes and locks closest to you:")
 
 			_, err = bot.Send(msg)
 			if err != nil {
 				panic(err)
 			}
 
+			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
+
 			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
 			stations := bysykkel.GetStations(config.BysykkelKey)
 			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
 
-			msgText := bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
+			msgText := ""
+			for _, message := range lastMessages {
+				if message.Message == "/getbikes" && message.ChatID == update.Message.Chat.ID {
+					msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
+				} else if message.Message == "/getlocks" && message.ChatID == update.Message.Chat.ID {
+					msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
+				} else {
+					msgText = "We messed up, sorry."
+				}
+			}
 
 			msg = tgbotapi.NewMessage(
 				update.Message.Chat.ID,
