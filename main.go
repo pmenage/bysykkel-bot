@@ -3,6 +3,7 @@ package main
 import (
 	"bysykkelBot/bysykkel"
 	"bysykkelBot/config"
+	"bysykkelBot/messages"
 	"log"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
@@ -12,14 +13,11 @@ func main() {
 
 	config := config.FromYAML("config/config.yaml")
 
-	bot, err := tgbotapi.NewBotAPI(config.TelegramKey)
-	if err != nil {
-		panic(err)
-	}
+	bot := messages.NewBot(config.TelegramKey)
 
-	bot.Debug = true
+	bot.Client.Debug = true
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Printf("Authorized on account %s", bot.Client.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -31,7 +29,7 @@ func main() {
 
 	var lastMessages []lastMessage
 
-	updates, _ := bot.GetUpdatesChan(u)
+	updates, _ := bot.Client.GetUpdatesChan(u)
 
 	for update := range updates {
 
@@ -42,13 +40,9 @@ func main() {
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		if update.Message.Text == "/start" {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Hi "+update.Message.Chat.FirstName+", I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\nYou can send the following commands:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you\n/help - see all possible commands\n")
-			_, err := bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+
+			bot.SendMessage(update, "Hi "+update.Message.Chat.FirstName+", I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\nYou can send the following commands:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you\n/help - see all possible commands\n")
+
 		} else if update.Message.Text == "/locks" || update.Message.Text == "/bikes" {
 			lastMsg := lastMessage{
 				ChatID:  update.Message.Chat.ID,
@@ -70,28 +64,18 @@ func main() {
 				OneTimeKeyboard: true,
 			}
 			msg.ReplyMarkup = markup
-			_, err := bot.Send(msg)
+			_, err := bot.Client.Send(msg)
 			if err != nil {
 				panic(err)
 			}
 
 		} else if update.Message.Text == "Cancel" {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"We need your location to be able to tell you which bikes or locks are close to you. Try again later if you want!")
-			_, err := bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
-		} else if update.Message.Location != nil {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Thank you!\n\nHere are the bikes and locks closest to you:")
 
-			_, err = bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+			bot.SendMessage(update, "We need your location to be able to tell you which bikes or locks are close to you. Try again later if you want!")
+
+		} else if update.Message.Location != nil {
+
+			bot.SendMessage(update, "Thank you!\n\nHere are the bikes and locks closest to you:")
 
 			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
 
@@ -110,29 +94,20 @@ func main() {
 				}
 			}
 
-			msg = tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				msgText)
-			_, err = bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+			bot.SendMessage(update, msgText)
+
 		} else if update.Message.Text == "/help" {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
-			_, err = bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+
+			bot.SendMessage(update, "Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
+
+		} else if update.Message.Text == "/helpmeplease" {
+
+			bot.SendMessage(update, "Coucou mon chéri <3")
+
 		} else {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Sorry, I didn't understand your command. Check out /help if you need to refresh your memory.")
-			_, err = bot.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+
+			bot.SendMessage(update, "Sorry, I didn't understand your command. Check out /help if you need to refresh your memory.")
+
 		}
 
 	}
