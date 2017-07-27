@@ -4,13 +4,24 @@ import (
 	"bysykkelBot/bysykkel"
 	"bysykkelBot/config"
 	"log"
+	"net/http"
 
+	"fmt"
+
+	"encoding/json"
+	"io/ioutil"
+
+	"github.com/MartinSahlen/go-cloud-fn/shim"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func main() {
+func handler(w http.ResponseWriter, r *http.Request) {
 
-	config := config.FromYAML("config/config.yaml")
+	file, err := config.Asset("config.yaml")
+	if err != nil {
+		panic(err)
+	}
+	config := config.FromYAML(file)
 
 	bot, err := tgbotapi.NewBotAPI(config.TelegramKey)
 	if err != nil {
@@ -31,9 +42,18 @@ func main() {
 
 	var lastMessages []lastMessage
 
-	updates, _ := bot.GetUpdatesChan(u)
+	ch := make(chan tgbotapi.Update, bot.Buffer)
 
-	for update := range updates {
+	bytes, _ := ioutil.ReadAll(r.Body)
+	var update tgbotapi.Update
+	json.Unmarshal(bytes, &update)
+	fmt.Println(update)
+
+	ch <- update
+	fmt.Printf("ch is: %v", ch)
+	// updates, _ := bot.GetUpdatesChan(u)
+
+	for update := range ch {
 
 		if update.Message == nil {
 			continue
@@ -76,7 +96,6 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-
 		}
 
 		if update.Message.Text == "Cancel" {
@@ -126,5 +145,13 @@ func main() {
 		}
 
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func main() {
+
+	shim.ServeHTTP(handler)
 
 }
