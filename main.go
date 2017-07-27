@@ -44,14 +44,12 @@ func main() {
 		if update.Message.Text == "/start" {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				"Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\n You can send the following commands:\n\n /getbikes - get the bikes closest to you\n /getlocks - get the locks closest to you\n")
+				"Hi "+update.Message.Chat.FirstName+", I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\nYou can send the following commands:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you\n/help - see all possible commands\n")
 			_, err := bot.Send(msg)
 			if err != nil {
 				panic(err)
 			}
-		}
-
-		if update.Message.Text == "/getlocks" || update.Message.Text == "/getbikes" {
+		} else if update.Message.Text == "/locks" || update.Message.Text == "/bikes" {
 			lastMsg := lastMessage{
 				ChatID:  update.Message.Chat.ID,
 				Message: update.Message.Text,
@@ -77,9 +75,7 @@ func main() {
 				panic(err)
 			}
 
-		}
-
-		if update.Message.Text == "Cancel" {
+		} else if update.Message.Text == "Cancel" {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				"We need your location to be able to tell you which bikes or locks are close to you. Try again later if you want!")
@@ -87,12 +83,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-		}
-
-		if update.Message.Location != nil {
+		} else if update.Message.Location != nil {
 			msg := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				"Thank you!\n\n Here are the bikes and locks closest to you:")
+				"Thank you!\n\nHere are the bikes and locks closest to you:")
 
 			_, err = bot.Send(msg)
 			if err != nil {
@@ -107,9 +101,9 @@ func main() {
 
 			msgText := ""
 			for _, message := range lastMessages {
-				if message.Message == "/getbikes" && message.ChatID == update.Message.Chat.ID {
+				if message.Message == "/bikes" && message.ChatID == update.Message.Chat.ID {
 					msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
-				} else if message.Message == "/getlocks" && message.ChatID == update.Message.Chat.ID {
+				} else if message.Message == "/locks" && message.ChatID == update.Message.Chat.ID {
 					msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
 				} else {
 					msgText = "We messed up, sorry."
@@ -119,6 +113,22 @@ func main() {
 			msg = tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				msgText)
+			_, err = bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+		} else if update.Message.Text == "/help" {
+			msg := tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				"Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
+			_, err = bot.Send(msg)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			msg := tgbotapi.NewMessage(
+				update.Message.Chat.ID,
+				"Sorry, I didn't understand your command. Check out /help if you need to refresh your memory.")
 			_, err = bot.Send(msg)
 			if err != nil {
 				panic(err)

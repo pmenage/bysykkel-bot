@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"math"
 	"sort"
 
 	"github.com/kellydunn/golang-geo"
@@ -37,27 +36,27 @@ func getNearest(userLat float64, userLong float64, stations StationsConfig, avai
 	userPoint := geo.NewPoint(userLat, userLong)
 
 	for _, station := range stations.Stations {
-		if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
-			log.Printf("User is at %v and %v", userLat, userLong)
-			for _, nearStation := range availability.Stations {
-				if nearStation.ID == station.ID {
+		//if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
+		log.Printf("User is at %v and %v", userLat, userLong)
+		for _, nearStation := range availability.Stations {
+			if nearStation.ID == station.ID {
 
-					stationPoint := geo.NewPoint(station.Center.Latitude, station.Center.Longitude)
+				stationPoint := geo.NewPoint(station.Center.Latitude, station.Center.Longitude)
 
-					distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
+				distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
 
-					station := result{
-						Title:    station.Title,
-						Bikes:    nearStation.Availability.Bikes,
-						Locks:    nearStation.Availability.Locks,
-						Distance: distance,
-					}
-
-					r = append(r, station)
-
+				station := result{
+					Title:    station.Title,
+					Bikes:    nearStation.Availability.Bikes,
+					Locks:    nearStation.Availability.Locks,
+					Distance: distance,
 				}
+
+				r = append(r, station)
+
 			}
 		}
+		//}
 	}
 
 	return r
@@ -69,6 +68,7 @@ func GetNearestBikes(userLat float64, userLong float64, stations StationsConfig,
 
 	var buffer bytes.Buffer
 	r := getNearest(userLat, userLong, stations, availability)
+	log.Printf("\n\nResults are: %v\n\n", r)
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
