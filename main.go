@@ -2,18 +2,19 @@ package main
 
 import (
 	"bysykkelBot/bysykkel"
-	"bysykkelBot/config"
 	"bysykkelBot/messages"
 	"log"
+
+	"os"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func main() {
 
-	config := config.FromYAML("config/config.yaml")
+	//config := config.FromYAML("config/config.yaml")
 
-	bot := messages.NewBot(config.TelegramKey)
+	bot := messages.NewBot(os.Getenv("TELEGRAM_KEY"))
 
 	bot.Client.Debug = true
 
@@ -80,8 +81,8 @@ func main() {
 			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
 
 			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
-			stations := bysykkel.GetStations(config.BysykkelKey)
-			availability := bysykkel.GetStationsAvailability(config.BysykkelKey)
+			stations := bysykkel.GetStations(os.Getenv("BYSYKKEL_KEY"))
+			availability := bysykkel.GetStationsAvailability(os.Getenv("BYSYKKEL_KEY"))
 
 			msgText := ""
 			for _, message := range lastMessages {
@@ -103,6 +104,15 @@ func main() {
 		} else if update.Message.Text == "/helpmeplease" {
 
 			bot.SendMessage(update, "Coucou mon chéri <3")
+
+		} else if update.Message.Text == "/kisskisslovelove" {
+
+			documentConfig := tgbotapi.NewDocumentUpload(update.Message.Chat.ID, "/paupau.jpg")
+			tgbotapi.NewDocumentShare(update.Message.Chat.ID, documentConfig.BaseFile.FileID)
+
+			bot.Client.Send(documentConfig)
+
+			bot.SendMessage(update, "I love you my sweetheart <3")
 
 		} else {
 
