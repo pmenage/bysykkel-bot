@@ -37,7 +37,6 @@ func getNearest(userLat float64, userLong float64, stations StationsConfig, avai
 
 	for _, station := range stations.Stations {
 		//if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
-		log.Printf("User is at %v and %v", userLat, userLong)
 		for _, nearStation := range availability.Stations {
 			if nearStation.ID == station.ID {
 
