@@ -3,7 +3,6 @@ package bysykkel
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"sort"
 
 	"github.com/kellydunn/golang-geo"
@@ -104,13 +103,13 @@ func GetNearestLocks(userLat float64, userLong float64, stations StationsConfig,
 		msgText := ""
 		if r[i].Locks == 1 {
 			msgText = fmt.Sprintf(
-				"Station %v, at %v meters away, has %v lock\n",
+				"Station %v, %v meters away from you, has %v lock\n",
 				r[i].Title,
 				r[i].Distance,
 				r[i].Locks)
 		} else {
 			msgText = fmt.Sprintf(
-				"Station %v, at %v meters away, has %v locks\n",
+				"Station %v, %v meters away from you, has %v locks\n",
 				r[i].Title,
 				r[i].Distance,
 				r[i].Locks)

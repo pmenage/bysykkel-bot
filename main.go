@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bysykkelBot/bysykkel"
-	"bysykkelBot/messages"
+	"bysykkel-bot/bysykkel"
+	"bysykkel-bot/messages"
 	"log"
 
 	"os"
@@ -100,6 +100,19 @@ func main() {
 		} else if update.Message.Text == "/help" {
 
 			bot.SendMessage(update, "Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
+
+		} else if update.Message.Text == "/helpmeplease" {
+
+			bot.SendMessage(update, "Coucou mon chéri <3")
+
+		} else if update.Message.Text == "/kisskisslovelove" {
+
+			documentConfig := tgbotapi.NewDocumentUpload(update.Message.Chat.ID, "/paupau.jpg")
+			tgbotapi.NewDocumentShare(update.Message.Chat.ID, documentConfig.BaseFile.FileID)
+
+			bot.Client.Send(documentConfig)
+
+			bot.SendMessage(update, "I love you my sweetheart <3")
 
 		} else {
 
