@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bysykkel-bot/bysykkel"
-	"bysykkel-bot/messages"
+	"bysykkelBot/bysykkel"
+	"bysykkelBot/messages"
 	"log"
 
 	"os"

@@ -1,4 +1,4 @@
-package: bysykkel-bot
+package: bysykkelBot
 import:
 - package: github.com/go-telegram-bot-api/telegram-bot-api
 - package: github.com/ghodss/yaml
