@@ -6,7 +6,7 @@ then
   exit 1
 fi
 
-./build-binary.sh
-./build-container.sh $1
+./scripts/build-binary.sh
+./scripts/build-container.sh $1
 kubectl delete deployment bysykkel
 ./scripts/deploy.sh $1
