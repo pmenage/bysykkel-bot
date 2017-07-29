@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bysykkel
+  labels:
+    name: bysykkel
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: bysykkel
+    spec:
+      containers:
+      - name: bysykkel
+        image: gcr.io/$PROJECT/bysykkel:$TAG
+        imagePullPolicy: Always
+        env:
+        - name: TELEGRAM_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keys
+              key: telegramkey
+        - name: BYSYKKEL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keys
+              key: bysykkelkey

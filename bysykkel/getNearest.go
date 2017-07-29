@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"math"
 	"sort"
 
 	"github.com/kellydunn/golang-geo"
@@ -37,27 +36,26 @@ func getNearest(userLat float64, userLong float64, stations StationsConfig, avai
 	userPoint := geo.NewPoint(userLat, userLong)
 
 	for _, station := range stations.Stations {
-		if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
-			log.Printf("User is at %v and %v", userLat, userLong)
-			for _, nearStation := range availability.Stations {
-				if nearStation.ID == station.ID {
+		//if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
+		for _, nearStation := range availability.Stations {
+			if nearStation.ID == station.ID {
 
-					stationPoint := geo.NewPoint(station.Center.Latitude, station.Center.Longitude)
+				stationPoint := geo.NewPoint(station.Center.Latitude, station.Center.Longitude)
 
-					distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
+				distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
 
-					station := result{
-						Title:    station.Title,
-						Bikes:    nearStation.Availability.Bikes,
-						Locks:    nearStation.Availability.Locks,
-						Distance: distance,
-					}
-
-					r = append(r, station)
-
+				station := result{
+					Title:    station.Title,
+					Bikes:    nearStation.Availability.Bikes,
+					Locks:    nearStation.Availability.Locks,
+					Distance: distance,
 				}
+
+				r = append(r, station)
+
 			}
 		}
+		//}
 	}
 
 	return r
@@ -72,11 +70,20 @@ func GetNearestBikes(userLat float64, userLong float64, stations StationsConfig,
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := fmt.Sprintf(
-			"Station %v, at %v meters away, has %v bikes\n",
-			r[i].Title,
-			r[i].Distance,
-			r[i].Bikes)
+		msgText := ""
+		if r[i].Bikes == 1 {
+			msgText = fmt.Sprintf(
+				"Station %v, at %v meters away, has %v bike\n",
+				r[i].Title,
+				r[i].Distance,
+				r[i].Bikes)
+		} else {
+			msgText = fmt.Sprintf(
+				"Station %v, at %v meters away, has %v bikes\n",
+				r[i].Title,
+				r[i].Distance,
+				r[i].Bikes)
+		}
 		buffer.WriteString(msgText)
 	}
 
@@ -94,11 +101,20 @@ func GetNearestLocks(userLat float64, userLong float64, stations StationsConfig,
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := fmt.Sprintf(
-			"Station %v, at %v meters away, has %v locks\n",
-			r[i].Title,
-			r[i].Distance,
-			r[i].Locks)
+		msgText := ""
+		if r[i].Locks == 1 {
+			msgText = fmt.Sprintf(
+				"Station %v, at %v meters away, has %v lock\n",
+				r[i].Title,
+				r[i].Distance,
+				r[i].Locks)
+		} else {
+			msgText = fmt.Sprintf(
+				"Station %v, at %v meters away, has %v locks\n",
+				r[i].Title,
+				r[i].Distance,
+				r[i].Locks)
+		}
 		buffer.WriteString(msgText)
 	}
 
