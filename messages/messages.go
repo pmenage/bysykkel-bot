@@ -27,3 +27,26 @@ func (b Bot) SendMessage(update tgbotapi.Update, message string) {
 		panic(err)
 	}
 }
+
+// SendLocationKeyboard asks for the user's current location
+func (b Bot) SendLocationKeyboard(update tgbotapi.Update, message string) {
+	bot := b.Client
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, message)
+
+	markup := tgbotapi.ReplyKeyboardMarkup{
+		Keyboard: [][]tgbotapi.KeyboardButton{
+			[]tgbotapi.KeyboardButton{
+				tgbotapi.NewKeyboardButtonLocation("Give location"),
+			},
+			[]tgbotapi.KeyboardButton{
+				tgbotapi.NewKeyboardButton("Cancel"),
+			},
+		},
+		OneTimeKeyboard: true,
+	}
+	msg.ReplyMarkup = markup
+	_, err := bot.Send(msg)
+	if err != nil {
+		panic(err)
+	}
+}

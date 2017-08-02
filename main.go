@@ -2,7 +2,9 @@ package main
 
 import (
 	"bysykkelBot/bysykkel"
+	"bysykkelBot/config"
 	"bysykkelBot/messages"
+	"errors"
 	"log"
 
 	"os"
@@ -12,9 +14,21 @@ import (
 
 func main() {
 
-	//config := config.FromYAML("config/config.yaml")
+	telegramKey := ""
+	bysykkelKey := ""
+	if os.Getenv("DEPLOY_KIND") == "local" {
+		config := config.FromYAML("config/config.yaml")
+		telegramKey = config.TelegramKey
+		bysykkelKey = config.BysykkelKey
+	} else if os.Getenv("DEPLOY_KIND") == "cloud" {
+		telegramKey = os.Getenv("TELEGRAM_KEY")
+		bysykkelKey = os.Getenv("BYSYKKEL_KEY")
+	} else {
+		log.Println("DEPLOY_KIND is not set")
+		panic(errors.New("DEPLOY_KIND is not set"))
+	}
 
-	bot := messages.NewBot(os.Getenv("TELEGRAM_KEY"))
+	bot := messages.NewBot(telegramKey)
 
 	bot.Client.Debug = true
 
@@ -45,30 +59,13 @@ func main() {
 			bot.SendMessage(update, "Hi "+update.Message.Chat.FirstName+", I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\nYou can send the following commands:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you\n/help - see all possible commands\n")
 
 		} else if update.Message.Text == "/locks" || update.Message.Text == "/bikes" {
-			lastMsg := lastMessage{
+
+			lastMessages = append(lastMessages, lastMessage{
 				ChatID:  update.Message.Chat.ID,
 				Message: update.Message.Text,
-			}
-			lastMessages = append(lastMessages, lastMsg)
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Do you allow the bot to use your current location?")
-			markup := tgbotapi.ReplyKeyboardMarkup{
-				Keyboard: [][]tgbotapi.KeyboardButton{
-					[]tgbotapi.KeyboardButton{
-						tgbotapi.NewKeyboardButtonLocation("Give location"),
-					},
-					[]tgbotapi.KeyboardButton{
-						tgbotapi.NewKeyboardButton("Cancel"),
-					},
-				},
-				OneTimeKeyboard: true,
-			}
-			msg.ReplyMarkup = markup
-			_, err := bot.Client.Send(msg)
-			if err != nil {
-				panic(err)
-			}
+			})
+
+			bot.SendLocationKeyboard(update, "Do you allow the bot to use your current location?")
 
 		} else if update.Message.Text == "Cancel" {
 
@@ -81,8 +78,8 @@ func main() {
 			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
 
 			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
-			stations := bysykkel.GetStations(os.Getenv("BYSYKKEL_KEY"))
-			availability := bysykkel.GetStationsAvailability(os.Getenv("BYSYKKEL_KEY"))
+			stations := bysykkel.GetStations(bysykkelKey)
+			availability := bysykkel.GetStationsAvailability(bysykkelKey)
 
 			msgText := ""
 			for _, message := range lastMessages {
@@ -90,8 +87,8 @@ func main() {
 					msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
 				} else if message.Message == "/locks" && message.ChatID == update.Message.Chat.ID {
 					msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
-				} else {
-					msgText = "We messed up, sorry."
+				} else if message.Message != "/bikes" && message.Message != "/locks" && message.ChatID == update.Message.Chat.ID {
+					msgText = "Please try again, enter the /bikes or the /locks command"
 				}
 			}
 
@@ -100,19 +97,6 @@ func main() {
 		} else if update.Message.Text == "/help" {
 
 			bot.SendMessage(update, "Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
-
-		} else if update.Message.Text == "/helpmeplease" {
-
-			bot.SendMessage(update, "Coucou mon chéri <3")
-
-		} else if update.Message.Text == "/kisskisslovelove" {
-
-			documentConfig := tgbotapi.NewDocumentUpload(update.Message.Chat.ID, "/paupau.jpg")
-			tgbotapi.NewDocumentShare(update.Message.Chat.ID, documentConfig.BaseFile.FileID)
-
-			bot.Client.Send(documentConfig)
-
-			bot.SendMessage(update, "I love you my sweetheart <3")
 
 		} else {
 
