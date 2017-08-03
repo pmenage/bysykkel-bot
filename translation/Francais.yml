@@ -1,0 +1,30 @@
+start: |
+  Bonjour, je suis le bysykkel bot, je peux vous dire s'il y a des vélos près de vous.
+  Vous pouvez envoyer les commandes suivantes :\n
+  /bikes - obtenez les vélos les plus proches de vous
+  /locks - obtenez les emplacements libres proches de vous
+  /help - pour voir toutes les commandes
+thank: Merci !
+location:
+  ask: Donnez-vous l'autorisation au bot d'utiliser votre localisation actuelle ?
+  give: Donner localisation?
+  getbikes: "Voila les vélos près de vous :"
+  getlocks: "Voila les emplacements près de vous :"
+  retry: Veuillez réessayer, entrez la commande /bikes ou /locks.
+cancel: >
+  Nous avons besoin de votre localisation pour pouvoir vous dire s'il y a des vélos ou
+  des emplacements près de vous.
+  Réessayez plus tard si vous le souhaitez.
+help: |
+  Voici les commandes que vous pouvez envoyer au bysykkel bot :\n
+  /bikes - obtenir les vélos proches de vous.
+  /locks - obtenir les emplacements près de vous.
+else: >
+  Désolé, je n'ai pas compris votre commande.
+  N'hésitez pas à taper /help pour voir les commandes disponibles.
+cmd:
+  start: /start
+  bikes: /velos
+  locks: /emplacements
+  cancel: Annuler
+  help: /aide

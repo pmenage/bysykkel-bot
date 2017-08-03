@@ -2,6 +2,8 @@ package config
 
 import (
 	"io/ioutil"
+	"log"
+	"os"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
@@ -24,4 +26,18 @@ func FromYAML(filepath string) Config {
 		panic(errors.Wrap(err, "Could not parse YAML file: "+filepath))
 	}
 	return c
+}
+
+// GetKeys returns keys, according to deploy kind
+func GetKeys() (string, string) {
+	switch os.Getenv("DEPLOY_KIND") {
+	case "local":
+		config := FromYAML("config/config.yaml")
+		return config.TelegramKey, config.BysykkelKey
+	case "cloud":
+		return os.Getenv("TELEGRAM_KEY"), os.Getenv("BYSYKKEL_KEY")
+	default:
+		log.Println("DEPLOY_KIND is not set")
+		panic(errors.New("DEPLOY_KIND is not set"))
+	}
 }
