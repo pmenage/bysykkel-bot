@@ -16,30 +16,7 @@ type UserConfig struct {
 }
 
 // Users contains is a map on the Chat ID
-//type Users map[int64]*UserConfig
-
-/*
-type UserConfig struct {
-	ChatID   int64
-	Language string
-	Message  string
-}*/
-
-// SetLanguage sets the language of a user
-func SetLanguage(users map[int64]UserConfig, chatID int64, language string) map[int64]UserConfig {
-	user := users[chatID]
-	user.Language = language
-	users[chatID] = user
-	return users
-}
-
-// SetLastMessage sets the last message of a user
-func SetLastMessage(users map[int64]UserConfig, chatID int64, lastMessage string) map[int64]UserConfig {
-	user := users[chatID]
-	user.LastMessage = lastMessage
-	users[chatID] = user
-	return users
-}
+type Users map[int64]*UserConfig
 
 // NewBot creates a new bot
 func NewBot(telegramKey string) Bot {

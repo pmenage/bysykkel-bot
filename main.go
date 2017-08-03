@@ -13,12 +13,12 @@ import (
 func main() {
 
 	gotra.InitGotra("translation")
+	gotra.SetCurrentLanguage("English")
 
 	telegramKey, bysykkelKey := config.GetKeys()
-	users := make(map[int64]messages.UserConfig)
+	users := make(messages.Users)
 	bot := messages.NewBot(telegramKey)
 	bot.Client.Debug = true
-	log.Printf("Authorized on account %s", bot.Client.Self.UserName)
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -31,10 +31,17 @@ func main() {
 
 		chatID := update.Message.Chat.ID
 
-		if _, ok := users[chatID]; ok {
-			if users[chatID].Language != "" {
-				gotra.SetCurrentLanguage(users[chatID].Language)
-			}
+		if _, ok := users[chatID]; !ok {
+			users[chatID] = &messages.UserConfig{}
+		}
+
+		if users[chatID].Language != "" {
+			gotra.SetCurrentLanguage(users[chatID].Language)
+		} else if users[chatID].Language == "" &&
+			users[chatID].LastMessage != "/language" && users[chatID].LastMessage != "/start" &&
+			update.Message.Text != "/language" && update.Message.Text != "/start" {
+			bot.SendMessage(update, "Something went wrong, press /start or /language")
+			continue
 		}
 
 		if update.Message.Location != nil {
@@ -64,14 +71,14 @@ func main() {
 
 		switch update.Message.Text {
 		case "/start", "/language":
+			users[chatID].LastMessage = update.Message.Text
 			bot.SendLanguageKeyboard(update)
-			users[chatID] = messages.UserConfig{}
 		case "English", "Francais":
-			users = messages.SetLanguage(users, chatID, update.Message.Text)
+			users[chatID].Language = update.Message.Text
 			gotra.SetCurrentLanguage(update.Message.Text)
 			bot.SendMessage(update, gotra.T("start"))
 		case "/locks", "/bikes":
-			users = messages.SetLastMessage(users, chatID, update.Message.Text)
+			users[chatID].LastMessage = update.Message.Text
 			bot.SendLocationKeyboard(update, gotra.T("location.ask"), gotra.T("location.give"), gotra.T("cmd.cancel"))
 		case "Cancel", "Annuler":
 			bot.SendMessage(update, gotra.T("cancel"))
