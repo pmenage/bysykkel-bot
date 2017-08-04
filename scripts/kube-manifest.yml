@@ -26,3 +26,5 @@ spec:
             secretKeyRef:
               name: keys
               key: bysykkelkey
+        - name: DEPLOY_KIND
+          value: cloud

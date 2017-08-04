@@ -1,6 +1,8 @@
-hash: 291c43ebc7ba37bc08375ff4776ff0f692eacc18917cd525f45ff94c44fdb06f
-updated: 2017-07-24T20:29:12.68543985+02:00
+hash: ae2113298a048c5b39d9d08367858074ebf9fad4c10bd1a4abdfa8bc708517cc
+updated: 2017-08-02T23:36:28.618300966+02:00
 imports:
+- name: github.com/cpapidas/Golang-Translator
+  version: 23c6f9544f50aecfa86851e2f076e2248eaa9ea6
 - name: github.com/erikstmartin/go-testdb
   version: 8d10e4a1bae52cd8b81ffdec3445890d6dccab3d
 - name: github.com/ghodss/yaml

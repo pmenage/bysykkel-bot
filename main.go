@@ -2,109 +2,103 @@ package main
 
 import (
 	"bysykkelBot/bysykkel"
+	"bysykkelBot/config"
 	"bysykkelBot/messages"
 	"log"
 
-	"os"
-
+	"github.com/cpapidas/Golang-Translator"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func main() {
 
-	//config := config.FromYAML("config/config.yaml")
+	gotra.InitGotra("translation")
 
-	bot := messages.NewBot(os.Getenv("TELEGRAM_KEY"))
-
-	bot.Client.Debug = true
-
-	log.Printf("Authorized on account %s", bot.Client.Self.UserName)
-
+	telegramKey, bysykkelKey := config.GetKeys()
+	users := make(messages.Users)
+	bot := messages.NewBot(telegramKey)
+	//bot.Client.Debug = true
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	type lastMessage struct {
-		ChatID  int64
-		Message string
-	}
-
-	var lastMessages []lastMessage
-
 	updates, _ := bot.Client.GetUpdatesChan(u)
-
 	for update := range updates {
 
 		if update.Message == nil {
 			continue
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		chatID := update.Message.Chat.ID
+		gotra.SetCurrentLanguage(update.Message.From.LanguageCode)
+		switch update.Message.From.LanguageCode {
+		case "fr-FR":
+			gotra.SetCurrentLanguage("Francais")
+		default:
+			gotra.SetCurrentLanguage("English")
+		}
 
-		if update.Message.Text == "/start" {
+		if _, ok := users[chatID]; !ok {
+			users[chatID] = &messages.UserConfig{}
+		}
 
-			bot.SendMessage(update, "Hi "+update.Message.Chat.FirstName+", I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.\nYou can send the following commands:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you\n/help - see all possible commands\n")
+		if users[chatID].Language != "" {
+			gotra.SetCurrentLanguage(users[chatID].Language)
+		} else if users[chatID].Language == "" &&
+			users[chatID].LastMessage != "/language" && users[chatID].LastMessage != "/start" &&
+			update.Message.Text != "/language" && update.Message.Text != "/start" {
+			bot.SendMessage(update, gotra.T("language.wrong"))
+			continue
+		}
 
-		} else if update.Message.Text == "/locks" || update.Message.Text == "/bikes" {
-			lastMsg := lastMessage{
-				ChatID:  update.Message.Chat.ID,
-				Message: update.Message.Text,
+		if update.Message.Location != nil {
+
+			bot.SendMessage(update, gotra.T("thank"))
+
+			loc := tgbotapi.NewLocation(chatID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			stations := bysykkel.GetStations(bysykkelKey)
+			availability := bysykkel.GetStationsAvailability(bysykkelKey)
+			status := bysykkel.GetStatus(bysykkelKey)
+
+			if status.Status.AllStationsClosed {
+				bot.SendMessage(update, gotra.T("location.closed"))
+				continue
 			}
-			lastMessages = append(lastMessages, lastMsg)
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Do you allow the bot to use your current location?")
-			markup := tgbotapi.ReplyKeyboardMarkup{
-				Keyboard: [][]tgbotapi.KeyboardButton{
-					[]tgbotapi.KeyboardButton{
-						tgbotapi.NewKeyboardButtonLocation("Give location"),
-					},
-					[]tgbotapi.KeyboardButton{
-						tgbotapi.NewKeyboardButton("Cancel"),
-					},
-				},
-				OneTimeKeyboard: true,
-			}
-			msg.ReplyMarkup = markup
-			_, err := bot.Client.Send(msg)
-			if err != nil {
-				panic(err)
-			}
-
-		} else if update.Message.Text == "Cancel" {
-
-			bot.SendMessage(update, "We need your location to be able to tell you which bikes or locks are close to you. Try again later if you want!")
-
-		} else if update.Message.Location != nil {
-
-			bot.SendMessage(update, "Thank you!\n\nHere are the bikes and locks closest to you:")
-
-			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
-
-			location := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
-			stations := bysykkel.GetStations(os.Getenv("BYSYKKEL_KEY"))
-			availability := bysykkel.GetStationsAvailability(os.Getenv("BYSYKKEL_KEY"))
 
 			msgText := ""
-			for _, message := range lastMessages {
-				if message.Message == "/bikes" && message.ChatID == update.Message.Chat.ID {
-					msgText = bysykkel.GetNearestBikes(location.Latitude, location.Longitude, stations, availability)
-				} else if message.Message == "/locks" && message.ChatID == update.Message.Chat.ID {
-					msgText = bysykkel.GetNearestLocks(location.Latitude, location.Longitude, stations, availability)
-				} else {
-					msgText = "We messed up, sorry."
-				}
+			switch users[chatID].LastMessage {
+			case "/bikes":
+				bot.SendMessage(update, gotra.T("location.getbikes"))
+				msgText = bysykkel.GetNearestBikes(loc.Latitude, loc.Longitude, stations, availability, status)
+			case "/locks":
+				bot.SendMessage(update, gotra.T("location.getlocks"))
+				msgText = bysykkel.GetNearestLocks(loc.Latitude, loc.Longitude, stations, availability, status)
+			default:
+				bot.SendMessage(update, gotra.T("location.retry"))
 			}
-
 			bot.SendMessage(update, msgText)
+			continue
 
-		} else if update.Message.Text == "/help" {
+		}
 
-			bot.SendMessage(update, "Here are the commands you can send to BysykkelBot:\n\n/bikes - get the bikes closest to you\n/locks - get the locks closest to you")
+		log.Printf("[%s] %s", update.Message.From.FirstName, update.Message.Text)
 
-		} else {
-
-			bot.SendMessage(update, "Sorry, I didn't understand your command. Check out /help if you need to refresh your memory.")
-
+		switch update.Message.Text {
+		case "/start", "/language":
+			users[chatID].LastMessage = update.Message.Text
+			bot.SendLanguageKeyboard(update, gotra.T("language.ask"))
+		case "English", "Francais":
+			users[chatID].Language = update.Message.Text
+			gotra.SetCurrentLanguage(update.Message.Text)
+			bot.SendMessage(update, gotra.T("start"))
+		case "/locks", "/bikes":
+			users[chatID].LastMessage = update.Message.Text
+			bot.SendLocationKeyboard(update, gotra.T("location.ask"), gotra.T("location.give"), gotra.T("cmd.cancel"))
+		case "Cancel", "Annuler":
+			bot.SendMessage(update, gotra.T("cancel"))
+		case "/help":
+			bot.SendMessage(update, gotra.T("help"))
+		default:
+			bot.SendMessage(update, gotra.T("else"))
 		}
 
 	}
