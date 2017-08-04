@@ -41,6 +41,9 @@ func (b Bot) SendMessage(update tgbotapi.Update, message string) {
 		ParseMode:             "HTML",
 		DisableWebPagePreview: true,
 	}
+	msg.ReplyMarkup = tgbotapi.ReplyKeyboardHide{
+		HideKeyboard: true,
+	}
 	_, err := bot.Send(msg)
 	if err != nil {
 		panic(err)

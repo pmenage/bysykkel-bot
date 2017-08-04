@@ -13,6 +13,7 @@ type result struct {
 	Bikes    int
 	Locks    int
 	Distance int
+	Closed   bool
 }
 
 type results []result
@@ -29,96 +30,85 @@ func (slice results) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-func getNearest(userLat float64, userLong float64, stations StationsConfig, availability AvailabilityConfig) results {
+func getNearest(userLat float64, userLong float64, stations Stations, availability AvailabilityConfig, status Status) results {
 
 	var r results
 	userPoint := geo.NewPoint(userLat, userLong)
 
-	for _, station := range stations.Stations {
-		//if math.Abs(userLat-station.Center.Latitude) < 0.005 && math.Abs(userLong-station.Center.Longitude) < 0.005 {
-		for _, nearStation := range availability.Stations {
-			if nearStation.ID == station.ID {
+	for _, nearStation := range availability.Stations {
 
-				stationPoint := geo.NewPoint(station.Center.Latitude, station.Center.Longitude)
+		id := nearStation.ID
+		stationPoint := geo.NewPoint(stations[id].Center.Latitude, stations[id].Center.Longitude)
+		distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
+		var station result
+		var closed bool
 
-				distance := int(userPoint.GreatCircleDistance(stationPoint) * 1000)
-
-				station := result{
-					Title:    station.Title,
-					Bikes:    nearStation.Availability.Bikes,
-					Locks:    nearStation.Availability.Locks,
-					Distance: distance,
-				}
-
-				r = append(r, station)
-
+		for _, s := range status.Status.StationsClosed {
+			if s == id {
+				closed = true
+			} else {
+				closed = false
 			}
 		}
-		//}
+
+		station = result{
+			Title:    stations[id].Title,
+			Bikes:    nearStation.Availability.Bikes,
+			Locks:    nearStation.Availability.Locks,
+			Distance: distance,
+			Closed:   closed,
+		}
+		r = append(r, station)
+
 	}
 
 	return r
 
 }
 
+func getMessage(r results, i int, t string) string {
+
+	if r[i].Closed {
+		return fmt.Sprintf(
+			"Station %v, %v meters away, is closed\n", r[i].Title, r[i].Distance)
+	} else if r[i].Bikes == 1 {
+		return fmt.Sprintf(
+			"Station %v, %v meters away, has %v %v\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
+	} else {
+		return fmt.Sprintf(
+			"Station %v, %v meters away, has %v %vs\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
+	}
+
+}
+
 // GetNearestBikes gives the user the bikes nearest to his position
-func GetNearestBikes(userLat float64, userLong float64, stations StationsConfig, availability AvailabilityConfig) string {
+func GetNearestBikes(userLat float64, userLong float64, stations Stations, availability AvailabilityConfig, status Status) string {
 
 	var buffer bytes.Buffer
-	r := getNearest(userLat, userLong, stations, availability)
+	r := getNearest(userLat, userLong, stations, availability, status)
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := ""
-		if r[i].Bikes == 1 {
-			msgText = fmt.Sprintf(
-				"Station %v, at %v meters away, has %v bike\n",
-				r[i].Title,
-				r[i].Distance,
-				r[i].Bikes)
-		} else {
-			msgText = fmt.Sprintf(
-				"Station %v, at %v meters away, has %v bikes\n",
-				r[i].Title,
-				r[i].Distance,
-				r[i].Bikes)
-		}
+		msgText := getMessage(r, i, "bike")
 		buffer.WriteString(msgText)
 	}
 
-	if buffer.String() == "" {
-		buffer.WriteString("There are no stations near you. Please try again later.")
-	}
 	return buffer.String()
+
 }
 
 // GetNearestLocks gives the user the locks nearest to his position
-func GetNearestLocks(userLat float64, userLong float64, stations StationsConfig, availability AvailabilityConfig) string {
+func GetNearestLocks(userLat float64, userLong float64, stations Stations, availability AvailabilityConfig, status Status) string {
 
 	var buffer bytes.Buffer
-	r := getNearest(userLat, userLong, stations, availability)
+	r := getNearest(userLat, userLong, stations, availability, status)
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := ""
-		if r[i].Locks == 1 {
-			msgText = fmt.Sprintf(
-				"Station %v, %v meters away from you, has %v lock\n",
-				r[i].Title,
-				r[i].Distance,
-				r[i].Locks)
-		} else {
-			msgText = fmt.Sprintf(
-				"Station %v, %v meters away from you, has %v locks\n",
-				r[i].Title,
-				r[i].Distance,
-				r[i].Locks)
-		}
+		msgText := getMessage(r, i, "lock")
 		buffer.WriteString(msgText)
 	}
 
-	if buffer.String() == "" {
-		buffer.WriteString("There are no stations near you. Please try again later.")
-	}
 	return buffer.String()
+
 }

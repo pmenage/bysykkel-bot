@@ -7,12 +7,16 @@ import (
 	"time"
 )
 
-// StationsConfig has the configuration of the stations
-type StationsConfig struct {
-	Stations []stationConfig `json:"stations"`
+// Stations contains all the stations config according to ID
+type Stations map[int]StationConfig
+
+// Config has the configuration of the stations
+type Config struct {
+	Stations []StationConfig `json:"stations"`
 }
 
-type stationConfig struct {
+// StationConfig contains the configuration of a station
+type StationConfig struct {
 	ID            int           `json:"id"`
 	Title         string        `json:"title"`
 	Subtitle      string        `json:"subtitle"`
@@ -27,7 +31,7 @@ type coordinates struct {
 }
 
 // GetStations gets the stations near you
-func GetStations(key string) StationsConfig {
+func GetStations(key string) Stations {
 
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
@@ -48,12 +52,17 @@ func GetStations(key string) StationsConfig {
 		panic(err)
 	}
 
-	var c StationsConfig
+	var c Config
 	err = json.Unmarshal(body, &c)
 	if err != nil {
 		panic(err)
 	}
 
-	return c
+	stations := make(Stations)
+	for _, config := range c.Stations {
+		stations[config.ID] = config
+	}
+
+	return stations
 
 }

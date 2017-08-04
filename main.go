@@ -17,7 +17,7 @@ func main() {
 	telegramKey, bysykkelKey := config.GetKeys()
 	users := make(messages.Users)
 	bot := messages.NewBot(telegramKey)
-	bot.Client.Debug = true
+	//bot.Client.Debug = true
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -57,22 +57,30 @@ func main() {
 			loc := tgbotapi.NewLocation(chatID, update.Message.Location.Latitude, update.Message.Location.Longitude)
 			stations := bysykkel.GetStations(bysykkelKey)
 			availability := bysykkel.GetStationsAvailability(bysykkelKey)
+			status := bysykkel.GetStatus(bysykkelKey)
+
+			if status.Status.AllStationsClosed {
+				bot.SendMessage(update, gotra.T("location.closed"))
+				continue
+			}
 
 			msgText := ""
 			switch users[chatID].LastMessage {
 			case "/bikes":
 				bot.SendMessage(update, gotra.T("location.getbikes"))
-				msgText = bysykkel.GetNearestBikes(loc.Latitude, loc.Longitude, stations, availability)
+				msgText = bysykkel.GetNearestBikes(loc.Latitude, loc.Longitude, stations, availability, status)
 			case "/locks":
 				bot.SendMessage(update, gotra.T("location.getlocks"))
-				msgText = bysykkel.GetNearestLocks(loc.Latitude, loc.Longitude, stations, availability)
+				msgText = bysykkel.GetNearestLocks(loc.Latitude, loc.Longitude, stations, availability, status)
 			default:
 				bot.SendMessage(update, gotra.T("location.retry"))
 			}
 			bot.SendMessage(update, msgText)
+			continue
+
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		log.Printf("[%s] %s", update.Message.From.FirstName, update.Message.Text)
 
 		switch update.Message.Text {
 		case "/start", "/language":

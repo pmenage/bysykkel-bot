@@ -4,7 +4,7 @@ language:
 start: |
   Bonjour, je suis le bysykkel bot, je peux vous dire s'il y a des vélos près de vous.
   Vous pouvez envoyer les commandes suivantes &#58;
-  
+
   /bikes - obtenez les vélos les plus proches de vous
   /locks - obtenez les emplacements libres proches de vous
   /help - pour voir toutes les commandes
@@ -15,6 +15,7 @@ location:
   getbikes: Voila les vélos près de vous &#58;
   getlocks: Voila les emplacements près de vous &#58;
   retry: Veuillez réessayer, entrez la commande /bikes ou /locks.
+  closed: Désolé, toutes les stations sont fermées, veuillez réessayer plus tard.
 cancel: >
   Nous avons besoin de votre localisation pour pouvoir vous dire s'il y a des vélos ou
   des emplacements près de vous.
