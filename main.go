@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	gotra.InitGotra("translation")
+	gotra.InitGotra("/translation")
 
 	telegramKey, bysykkelKey := config.GetKeys()
 	users := make(messages.Users)
