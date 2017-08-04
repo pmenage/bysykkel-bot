@@ -60,7 +60,7 @@ func main() {
 			status := bysykkel.GetStatus(bysykkelKey)
 
 			if status.Status.AllStationsClosed {
-				bot.SendMessage(update, gotra.T("location.closed"))
+				bot.SendMessage(update, gotra.T("location.allclosed"))
 				continue
 			}
 
@@ -68,10 +68,12 @@ func main() {
 			switch users[chatID].LastMessage {
 			case "/bikes":
 				bot.SendMessage(update, gotra.T("location.getbikes"))
-				msgText = bysykkel.GetNearestBikes(loc.Latitude, loc.Longitude, stations, availability, status)
+				msgText = bysykkel.GetNearestBikes(loc.Latitude, loc.Longitude, stations, availability, status,
+					gotra.T("location.message"), gotra.T("location.closed"), gotra.T("location.bike"))
 			case "/locks":
 				bot.SendMessage(update, gotra.T("location.getlocks"))
-				msgText = bysykkel.GetNearestLocks(loc.Latitude, loc.Longitude, stations, availability, status)
+				msgText = bysykkel.GetNearestLocks(loc.Latitude, loc.Longitude, stations, availability, status,
+					gotra.T("location.message"), gotra.T("location.closed"), gotra.T("location.lock"))
 			default:
 				bot.SendMessage(update, gotra.T("location.retry"))
 			}
