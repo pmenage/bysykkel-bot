@@ -13,7 +13,6 @@ import (
 func main() {
 
 	gotra.InitGotra("translation")
-	gotra.SetCurrentLanguage("English")
 
 	telegramKey, bysykkelKey := config.GetKeys()
 	users := make(messages.Users)
@@ -30,6 +29,13 @@ func main() {
 		}
 
 		chatID := update.Message.Chat.ID
+		gotra.SetCurrentLanguage(update.Message.From.LanguageCode)
+		switch update.Message.From.LanguageCode {
+		case "fr-FR":
+			gotra.SetCurrentLanguage("Francais")
+		default:
+			gotra.SetCurrentLanguage("English")
+		}
 
 		if _, ok := users[chatID]; !ok {
 			users[chatID] = &messages.UserConfig{}
@@ -40,16 +46,15 @@ func main() {
 		} else if users[chatID].Language == "" &&
 			users[chatID].LastMessage != "/language" && users[chatID].LastMessage != "/start" &&
 			update.Message.Text != "/language" && update.Message.Text != "/start" {
-			bot.SendMessage(update, "Something went wrong, press /start or /language")
+			bot.SendMessage(update, gotra.T("language.wrong"))
 			continue
 		}
 
 		if update.Message.Location != nil {
 
 			bot.SendMessage(update, gotra.T("thank"))
-			log.Printf("\n\nMessage for location given: %v\n\n", update.Message.Text)
 
-			loc := tgbotapi.NewLocation(update.Message.Chat.ID, update.Message.Location.Latitude, update.Message.Location.Longitude)
+			loc := tgbotapi.NewLocation(chatID, update.Message.Location.Latitude, update.Message.Location.Longitude)
 			stations := bysykkel.GetStations(bysykkelKey)
 			availability := bysykkel.GetStationsAvailability(bysykkelKey)
 
@@ -72,7 +77,7 @@ func main() {
 		switch update.Message.Text {
 		case "/start", "/language":
 			users[chatID].LastMessage = update.Message.Text
-			bot.SendLanguageKeyboard(update)
+			bot.SendLanguageKeyboard(update, gotra.T("language.ask"))
 		case "English", "Francais":
 			users[chatID].Language = update.Message.Text
 			gotra.SetCurrentLanguage(update.Message.Text)

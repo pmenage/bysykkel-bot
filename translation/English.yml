@@ -1,24 +1,28 @@
+language:
+  wrong: Something went wrong, press /start or /language
+  ask: Which language do you speak?
 start: |
-  "Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.
-  You can send the following commands:
+  Hi, I'm the bysykkel bot, you can send me a message to see if there are bikes or locks near you.
+  You can send the following commands&#58;
 
   /bikes - get the bikes closest to you
   /locks - get the locks closest to you
-  /help - see all possible commands"
+  /help - see all possible commands
 thank: Thanks!s
 location:
   ask: Do you allow the bot to use your current location?
   give: Give location?
-  getbikes: "Here are the bikes closest to you:"
-  getlocks: "Here are the locks closest to you:"
+  getbikes: Here are the bikes closest to you&#58;
+  getlocks: Here are the locks closest to you&#58;
   retry: Please try again, enter the /bikes or the /locks command.
 cancel: >
   We need your location to be able to tell you which bikes or locks are close to you.
   Try again later if you want!
 help: |
-  "Here are the commands you can send to BysykkelBot:
+  Here are the commands you can send to BysykkelBot&#58;
+  
   /bikes - get the bikes closest to you
-  /locks - get the locks closest to you"
+  /locks - get the locks closest to you
 else: >
   Sorry, I didn't understand your command.
   Check out /help if you need to refresh your memory.

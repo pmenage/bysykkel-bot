@@ -32,7 +32,15 @@ func NewBot(telegramKey string) Bot {
 // SendMessage sends a message to user
 func (b Bot) SendMessage(update tgbotapi.Update, message string) {
 	bot := b.Client
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, message)
+	msg := tgbotapi.MessageConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID:           update.Message.Chat.ID,
+			ReplyToMessageID: 0,
+		},
+		Text:                  message,
+		ParseMode:             "HTML",
+		DisableWebPagePreview: true,
+	}
 	_, err := bot.Send(msg)
 	if err != nil {
 		panic(err)
@@ -40,11 +48,11 @@ func (b Bot) SendMessage(update tgbotapi.Update, message string) {
 }
 
 // SendLanguageKeyboard sends a keyboard to chose a language
-func (b Bot) SendLanguageKeyboard(update tgbotapi.Update) {
+func (b Bot) SendLanguageKeyboard(update tgbotapi.Update, message string) {
 	bot := b.Client
 	msg := tgbotapi.NewMessage(
 		update.Message.Chat.ID,
-		"Which language do you speak?")
+		message)
 
 	markup := tgbotapi.ReplyKeyboardMarkup{
 		Keyboard: [][]tgbotapi.KeyboardButton{
