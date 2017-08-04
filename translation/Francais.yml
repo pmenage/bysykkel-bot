@@ -15,7 +15,11 @@ location:
   getbikes: Voila les vélos près de vous &#58;
   getlocks: Voila les emplacements près de vous &#58;
   retry: Veuillez réessayer, entrez la commande /bikes ou /locks.
-  closed: Désolé, toutes les stations sont fermées, veuillez réessayer plus tard.
+  allclosed: Désolé, toutes les stations sont fermées, veuillez réessayer plus tard.
+  message: La station %v, à %v mètres, a %v %v
+  closed: La station %v, à %v mètres, est fermée\n
+  bike: vélo
+  lock: emplacement
 cancel: >
   Nous avons besoin de votre localisation pour pouvoir vous dire s'il y a des vélos ou
   des emplacements près de vous.

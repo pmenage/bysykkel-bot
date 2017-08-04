@@ -15,7 +15,11 @@ location:
   getbikes: Here are the bikes closest to you&#58;
   getlocks: Here are the locks closest to you&#58;
   retry: Please try again, enter the /bikes or the /locks command.
-  closed: Sorry, all stations are closed, try again later.
+  allclosed: Sorry, all stations are closed, try again later.
+  message: Station %v, %v meters away, has %v %v
+  closed: Station %v, %v meters away, is closed\n
+  bike: bike
+  lock: lock
 cancel: >
   We need your location to be able to tell you which bikes or locks are close to you.
   Try again later if you want!

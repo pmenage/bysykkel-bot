@@ -66,30 +66,30 @@ func getNearest(userLat float64, userLong float64, stations Stations, availabili
 
 }
 
-func getMessage(r results, i int, t string) string {
+func getMessage(r results, i int, message, t string) string {
 
 	if r[i].Closed {
 		return fmt.Sprintf(
-			"Station %v, %v meters away, is closed\n", r[i].Title, r[i].Distance)
+			message, r[i].Title, r[i].Distance)
 	} else if r[i].Bikes == 1 {
 		return fmt.Sprintf(
-			"Station %v, %v meters away, has %v %v\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
+			message+"\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
 	} else {
 		return fmt.Sprintf(
-			"Station %v, %v meters away, has %v %vs\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
+			message+"s\n", r[i].Title, r[i].Distance, r[i].Bikes, t)
 	}
 
 }
 
 // GetNearestBikes gives the user the bikes nearest to his position
-func GetNearestBikes(userLat float64, userLong float64, stations Stations, availability AvailabilityConfig, status Status) string {
+func GetNearestBikes(userLat, userLong float64, stations Stations, availability AvailabilityConfig, status Status, message, closed, t string) string {
 
 	var buffer bytes.Buffer
 	r := getNearest(userLat, userLong, stations, availability, status)
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := getMessage(r, i, "bike")
+		msgText := getMessage(r, i, message, t)
 		buffer.WriteString(msgText)
 	}
 
@@ -98,14 +98,14 @@ func GetNearestBikes(userLat float64, userLong float64, stations Stations, avail
 }
 
 // GetNearestLocks gives the user the locks nearest to his position
-func GetNearestLocks(userLat float64, userLong float64, stations Stations, availability AvailabilityConfig, status Status) string {
+func GetNearestLocks(userLat, userLong float64, stations Stations, availability AvailabilityConfig, status Status, message, closed, t string) string {
 
 	var buffer bytes.Buffer
 	r := getNearest(userLat, userLong, stations, availability, status)
 
 	sort.Sort(r)
 	for i := 0; i < 5; i++ {
-		msgText := getMessage(r, i, "lock")
+		msgText := getMessage(r, i, message, t)
 		buffer.WriteString(msgText)
 	}
 
