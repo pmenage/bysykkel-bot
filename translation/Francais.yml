@@ -7,6 +7,7 @@ start: |
 
   /bikes - obtenez les vélos les plus proches de vous
   /locks - obtenez les emplacements libres proches de vous
+  /language - changer de langue
   /help - pour voir toutes les commandes
 thank: Merci !
 location:
@@ -27,8 +28,9 @@ cancel: >
 help: |
   Voici les commandes que vous pouvez envoyer au bysykkel bot &#58;
 
-  /bikes - obtenir les vélos proches de vous.
-  /locks - obtenir les emplacements près de vous.
+  /bikes - obtenir les vélos proches de vous
+  /locks - obtenir les emplacements près de vous
+  /language - changer de langue
 else: >
   Désolé, je n'ai pas compris votre commande.
   N'hésitez pas à taper /help pour voir les commandes disponibles.

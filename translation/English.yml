@@ -7,6 +7,7 @@ start: |
 
   /bikes - get the bikes closest to you
   /locks - get the locks closest to you
+  /language - change the current language
   /help - see all possible commands
 thank: Thanks!
 location:
@@ -28,6 +29,7 @@ help: |
 
   /bikes - get the bikes closest to you
   /locks - get the locks closest to you
+  /language - change the current language
 else: >
   Sorry, I didn't understand your command.
   Check out /help if you need to refresh your memory.

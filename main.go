@@ -29,7 +29,7 @@ func main() {
 		}
 
 		chatID := update.Message.Chat.ID
-		gotra.SetCurrentLanguage(update.Message.From.LanguageCode)
+
 		switch update.Message.From.LanguageCode {
 		case "fr-FR":
 			gotra.SetCurrentLanguage("Francais")
