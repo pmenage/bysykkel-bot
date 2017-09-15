@@ -32,3 +32,7 @@ Assuming that you have a Google Platform account, gcloud, kubectl, docker, go, a
 
 The chatbot asks you if you wish to share your location, and then uses the Oslo Bysykkel API to check if there are bicycles or locks near you, according to what your request was.
 
+## Evolution
+
+Additional features will be added to the bot. The bot will for example be able to get data from APIs of bikes in other cities, and users will choose in which city they wish to use the bot.
+

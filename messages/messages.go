@@ -65,6 +65,9 @@ func (b Bot) SendLanguageKeyboard(update tgbotapi.Update, message string) {
 			[]tgbotapi.KeyboardButton{
 				tgbotapi.NewKeyboardButton("Francais"),
 			},
+			[]tgbotapi.KeyboardButton{
+				tgbotapi.NewKeyboardButton("Norsk"),
+			},
 		},
 		OneTimeKeyboard: true,
 	}

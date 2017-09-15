@@ -5,6 +5,7 @@ import (
 	"bysykkelBot/config"
 	"bysykkelBot/messages"
 	"log"
+	"os"
 
 	"github.com/cpapidas/Golang-Translator"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
@@ -12,9 +13,13 @@ import (
 
 func main() {
 
-	gotra.InitGotra("/translation")
-
 	telegramKey, bysykkelKey := config.GetKeys()
+	if os.Getenv("DEPLOY_KIND") == "local" {
+		gotra.InitGotra("./translation")
+	} else {
+		gotra.InitGotra("/translation")
+	}
+
 	users := make(messages.Users)
 	bot := messages.NewBot(telegramKey)
 	//bot.Client.Debug = true
@@ -33,6 +38,8 @@ func main() {
 		switch update.Message.From.LanguageCode {
 		case "fr-FR":
 			gotra.SetCurrentLanguage("Francais")
+		case "no-NO":
+			gotra.SetCurrentLanguage("Norsk")
 		default:
 			gotra.SetCurrentLanguage("English")
 		}
@@ -88,7 +95,7 @@ func main() {
 		case "/start", "/language":
 			users[chatID].LastMessage = update.Message.Text
 			bot.SendLanguageKeyboard(update, gotra.T("language.ask"))
-		case "English", "Francais":
+		case "English", "Francais", "Norsk":
 			users[chatID].Language = update.Message.Text
 			gotra.SetCurrentLanguage(update.Message.Text)
 			bot.SendMessage(update, gotra.T("start"))

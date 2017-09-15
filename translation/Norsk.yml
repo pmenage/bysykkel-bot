@@ -1,0 +1,40 @@
+language:
+  wrong: Noe gikk galt, velg /start eller /language
+  ask: Hvilket språk snakker du?
+start: |
+  Hei, jeg er den bysykkel bot, du kan sende meg en melding for å se om det er sykler eller låser i nærheten av deg.
+  Du kan sende følgende kommandoer&#58;
+
+  /bikes - å få de nærmeste syklene
+  /locks - å få de nærmeste låsene
+  /language - å forandre det nåværende språket
+  /help - å se alle mulige kommandoer
+thank: Takk!
+location:
+  ask: Do you allow the bot to use your current location?
+  give: Give location?
+  getbikes: Here are the bikes closest to you&#58;
+  getlocks: Here are the locks closest to you&#58;
+  retry: Please try again, enter the /bikes or the /locks command.
+  allclosed: Sorry, all stations are closed, try again later.
+  message: Station %v, %v meters away, has %v %v
+  closed: Station %v, %v meters away, is closed\n
+  bike: bike
+  lock: lock
+cancel: >
+  Vi trenger din plassering for å kunne fortelle deg hvilke sykler eller låser som er nær deg.
+  Prøv igjen senere!
+help: |
+  Du kan sende følgende kommandoer&#58;
+
+  /bikes - å få de nærmeste syklene
+  /locks - å få de nærmeste låsene
+  /language - å forandre det nåværende språket
+else: >
+  Beklager, jeg forstod ikke kommandoen din, du kan sjekke ut /help.
+cmd:
+  start: /start
+  bikes: /bikes
+  locks: /locks
+  cancel: Avbryt
+  help: /help
